@@ -11,17 +11,8 @@ const version = "0.0.1"
 func main() {
 	fmt.Println("Scherzo compiler ", version)
 
-	value2 := lang.Cons(func(uint) interface{} {
-		return 2
-	}, func(uint) interface{} {
-		return nil
-	})
-
-	values := lang.Cons(func(uint) interface{} {
-		return 1
-	}, func(uint) interface{} {
-		return value2
-	})
+	value2 := lang.Cons(lang.NewAtom(2), lang.Nil)
+	values := lang.Cons(lang.NewAtom(1), lang.NewAtom(value2))
 
 	// values == '(1 . (2 . ()))
 	ret := lang.Apply(lang.Plus, values)

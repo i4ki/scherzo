@@ -1,11 +1,5 @@
 package lang
 
-type Element interface {
-	// S-Exprs OR Atom
-}
-
-type Atom interface{}
-
 type λ func(SExprs) SExprs
 
 // SExprs in Scherzo is defined as:
@@ -14,6 +8,12 @@ type λ func(SExprs) SExprs
 //            (cond ((= pick 1) x)
 //                  ((= pick 2) y)))
 type SExprs func(uint) interface{}
+
+func NewAtom(value interface{}) SExprs {
+	return func(uint) interface{} { return value }
+}
+
+var Nil = NewAtom(nil)
 
 // Should be defined in Scherzo user library
 func Cons(a SExprs, b SExprs) SExprs {
@@ -28,6 +28,7 @@ func Cons(a SExprs, b SExprs) SExprs {
 	}
 }
 
+// Plus is a recursive +
 func Plus(values SExprs) SExprs {
 	cdr, ok := values(2).(SExprs)
 
@@ -40,17 +41,13 @@ func Plus(values SExprs) SExprs {
 	car, ok := values(1).(int)
 
 	if !ok {
-		return func(uint) interface{} {
-			return nil
-		}
+		return Nil
 	}
 
 	cdrcar, ok := cdr(1).(int)
 
 	if !ok {
-		return func(uint) interface{} {
-			return nil
-		}
+		return Nil
 	}
 
 	acc := cdrcar + car
@@ -58,16 +55,10 @@ func Plus(values SExprs) SExprs {
 	cdrcdr, ok := cdr(2).(SExprs)
 
 	if !ok {
-		return Cons(func(uint) interface{} {
-			return acc
-		}, func(uint) interface{} {
-			return nil
-		})
+		return Cons(NewAtom(acc), Nil)
 	}
 
-	return Plus(Cons(func(uint) interface{} {
-		return cdrcar + car
-	}, cdrcdr))
+	return Plus(Cons(NewAtom(acc), cdrcdr))
 }
 
 func Apply(operator λ, operands SExprs) SExprs {
