@@ -1,17 +1,20 @@
 package lang
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestAST(t *testing.T) {
-	ast := NewAST()
+	value2 := Cons(func(uint) interface{} { return 2 }, func(uint) interface{} { return nil })
+	value1 := Cons(func(uint) interface{} { return 1 }, func(uint) interface{} { return value2 })
 
-	if len(ast) != 2 {
-		t.Errorf("S-Expressions length is wrong: %d", len(ast))
-		return
-	}
+	fmt.Println(value2(1))
+	fmt.Println(value2(2))
 
-	if ast[0] != nil || ast[1] != nil {
-		t.Errorf("Values of empty S-Expression is invalid: %s", ast)
-		return
-	}
+	fmt.Println(value1(1))
+	fmt.Println(value1(2))
+	ret := Apply(Plus, value1)
+
+	fmt.Println(ret(1))
 }
