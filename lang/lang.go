@@ -38,9 +38,7 @@ func Plus(values SExprs) SExprs {
 	cdr, ok := values(2).(SExprs)
 
 	if !ok {
-		return func(uint) interface{} {
-			return values(1)
-		}
+		return NewAtom(values(1))
 	}
 
 	car, ok := values(1).(int)
