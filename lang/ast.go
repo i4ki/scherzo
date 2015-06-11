@@ -15,7 +15,7 @@ func NewAtom(value interface{}) SExprs {
 
 var Nil = NewAtom(nil)
 
-// Should be defined in Scherzo user library
+// Temporary Cons implementation. This should be defined in Scherzo user library
 func Cons(a SExprs, b SExprs) SExprs {
 	return func(pick uint) interface{} {
 		if pick == 1 {
