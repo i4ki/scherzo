@@ -9,13 +9,18 @@ type λ func(SExprs) SExprs
 //                  ((= pick 2) y)))
 type SExprs func(uint) interface{}
 
+// Atom is an S-Expression that returns an literal when evaluated
+// Doesn't have an explicit type
+
+// NewAtom returns a new Atom
 func NewAtom(value interface{}) SExprs {
 	return func(uint) interface{} { return value }
 }
 
 var Nil = NewAtom(nil)
 
-// Temporary Cons implementation. This should be defined in Scherzo user library
+// Cons is the List constructor.
+// Temporary Cons implementation. This should be defined in scherzo lang.
 func Cons(a SExprs, b SExprs) SExprs {
 	return func(pick uint) interface{} {
 		if pick == 1 {
