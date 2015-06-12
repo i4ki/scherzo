@@ -10,12 +10,17 @@ const version = "0.0.1"
 
 func main() {
 	fmt.Println("Scherzo compiler ", version)
+	Example()
+}
 
+// Example represents the AST of the code below:
+//
+// (print (+ 1 2))
+func Example() {
 	value2 := lang.Cons(lang.NewAtom(2), lang.Nil)
 	values := lang.Cons(lang.NewAtom(1), lang.NewAtom(value2))
 
 	// values == '(1 . (2 . ()))
 	ret := lang.Apply(lang.Plus, values)
-
-	fmt.Println(ret(1))
+	lang.Apply(lang.Print, ret)
 }
