@@ -8,6 +8,8 @@
 
 package lang
 
+import "fmt"
+
 type λ func(...SExprs) SExprs
 
 // SExprs in Scherzo is defined as:
@@ -17,12 +19,59 @@ type λ func(...SExprs) SExprs
 //                  ((= pick 2) y)))
 type SExprs func(uint) interface{}
 
+func (s SExprs) ConsString() string {
+	var (
+		value interface{}
+	)
+
+	toString := func(pick uint) string {
+		value = s(pick)
+		switch value.(type) {
+		case nil:
+			return "()"
+		case int:
+			return fmt.Sprintf("%d", value)
+		case bool:
+			boolValue := value.(bool)
+			if boolValue {
+				return "true"
+			} else {
+				return "false"
+			}
+		case string:
+			return fmt.Sprintf(`"%s"`, value.(string))
+		case SExprs:
+			vsexpr := value.(SExprs)
+			return vsexpr.ConsString()
+		default:
+			panic(fmt.Sprintf("invalid sexpression: %s", value))
+		}
+
+		return ""
+	}
+
+	repCar := toString(1)
+	repCdr := toString(2)
+
+	if repCdr == "" {
+		return repCar
+	}
+
+	return "(" + repCar + " . " + repCdr + ")"
+}
+
 // Atom is an S-Expression that returns an literal when evaluated
-// Doesn't have an explicit type
+// Atom haven't an explicit type
 
 // NewAtom returns a new Atom
 func NewAtom(value interface{}) SExprs {
-	return func(uint) interface{} { return value }
+	return func(i uint) interface{} {
+		if i == 2 {
+			return nil
+		}
+
+		return value
+	}
 }
 
 var Nil = NewAtom(nil)

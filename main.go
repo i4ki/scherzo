@@ -2,14 +2,31 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/tiago4orion/scherzo/lang"
+	"github.com/tiago4orion/scherzo/parser"
 )
 
 const version = "0.0.1"
 
 func main() {
 	fmt.Println("Scherzo compiler ", version)
+
+	file, err := os.Open("./hello.scm")
+
+	if err != nil {
+		fmt.Println("[ERROR] ", err.Error())
+		return
+	}
+
+	_, err = parser.FromReader(file)
+
+	if err != nil {
+		fmt.Println("[ERROR] ", err.Error())
+		return
+	}
+
 	Example()
 }
 
