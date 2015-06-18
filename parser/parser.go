@@ -63,22 +63,22 @@ func parseCons(conString string) (lang.SExprs, int, error) {
 		ignoreCurrent int
 		ignoreLength  int
 		ignoreRunes   bool
+		car, cdr      lang.SExprs
 	)
 
-	fmt.Println("Parsing: ", conString)
+	var finalExpr lang.SExprs
+
+	finalExpr = lang.Nil
 
 	pState.listOp = list.New()
 
 	// Create our lexer
-	// NewSize(startState, reader, readerBufLen, channelCap)
 	lex := lexer.NewFromString(lexFunc, conString, 1)
-	//	var lastTokenType = TokenNil
 
 	// Process lexer-emitted tokens
 Scanner:
 	for t := lex.NextToken(); lexer.TokenTypeEOF != t.Type(); t = lex.NextToken() {
 		if ignoreRunes && ignoreCurrent < (lex.Column()+ignoreLength) {
-			fmt.Println("Ignoring: ", string([]byte(conString)[lex.Column()-1:]))
 			ignoreCurrent++
 			continue
 		} else {
@@ -91,17 +91,12 @@ Scanner:
 		case TokenWord:
 			word := string(t.Bytes())
 
-			fmt.Println("TOKENWORD: ", word)
-
 			if pState.IsDoubleQuotedString || pState.IsSingleQuotedString {
 				fmt.Println("TOKENWORD inside quoted")
 			} else {
 				pState.listOp.PushBack(lang.NewAtom(strings.Trim(word, " ")))
 			}
 		case TokenLParen:
-			fmt.Println("LPAREN: ", string(t.Bytes()))
-			fmt.Println("Column: ", lex.Column())
-
 			column := lex.Column()
 			if column == 1 {
 				pState.IsLParen = true
@@ -112,18 +107,13 @@ Scanner:
 					return nil, column, err
 				}
 
-				pState.listOp.PushBack(lang.NewAtom(subExpr))
-
-				currentColumn := lex.Column()
-				fmt.Println("Advancing from ", currentColumn, " to ", currentColumn+column)
+				pState.listOp.PushBack(subExpr)
 
 				ignoreRunes = true
 				ignoreLength = column
 				ignoreCurrent = 0
 			}
 		case TokenRParen:
-			fmt.Println("RPAREN: ", string(t.Bytes()))
-
 			if pState.IsDoubleQuotedString || pState.IsSingleQuotedString {
 				fmt.Println("RParen inside string")
 			} else if pState.IsLParen {
@@ -174,8 +164,6 @@ Scanner:
 				fmt.Println("NUMBER INSIDE STRING: ", string(t.Bytes()))
 			} else {
 				numberStr := string(t.Bytes())
-				fmt.Println("NUMBER: ", string(t.Bytes()))
-
 				number, err := strconv.Atoi(numberStr)
 
 				if err != nil {
@@ -191,27 +179,24 @@ Scanner:
 		//		lastTokenType = t.Type()
 	}
 
-	var finalExpr lang.SExprs
+	elem := pState.listOp.Back()
 
-	last := lang.Nil
-	finalExpr = lang.Nil
-
-	for expr := pState.listOp.Back(); expr != nil; expr = pState.listOp.Back() {
-		fmt.Println("last: ", last(1))
-		var cdr lang.SExprs
-
-		if last(1) == nil {
-			cdr = last
-		} else {
-			cdr = lang.NewAtom(last)
-		}
-
-		finalExpr = lang.Cons(expr.Value.(lang.SExprs), cdr)
-		last = finalExpr
-		pState.listOp.Remove(expr)
+	if elem == nil {
+		return lang.Nil, lex.Column(), nil
 	}
 
-	fmt.Println("Finish expression")
+	cdr = elem.Value.(lang.SExprs)
+	pState.listOp.Remove(elem)
+	elem = pState.listOp.Back()
+
+	if elem == nil {
+		car = lang.Nil
+	} else {
+		car = elem.Value.(lang.SExprs)
+	}
+
+	pState.listOp.Remove(elem)
+	finalExpr = lang.Cons(car, lang.NewAtom(cdr))
 	return finalExpr, lex.Column(), nil
 }
 

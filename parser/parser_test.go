@@ -7,7 +7,7 @@ import (
 	"github.com/tiago4orion/scherzo/lang"
 )
 
-func TestSimpleExpression(t *testing.T) {
+func TestSimpleAddExpression(t *testing.T) {
 	src := `(+ (1 (2 ())))`
 
 	exprs, err := FromString(src)
@@ -18,7 +18,8 @@ func TestSimpleExpression(t *testing.T) {
 	}
 
 	two := lang.NewAtom(2)
-	tail := lang.Cons(two, lang.Nil)
+	consNil := lang.Cons(lang.Nil, lang.Nil)
+	tail := lang.Cons(two, lang.NewAtom(consNil))
 	head := lang.Cons(lang.NewAtom(1), lang.NewAtom(tail))
 	proc := lang.Cons(lang.NewAtom("+"), lang.NewAtom(head))
 
