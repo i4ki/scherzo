@@ -1,6 +1,12 @@
 
+(define .
+  (son .
+       ("Enzo de Bem" .
+	(() .
+	 ()))))
+
+(+ . (1 . (1 . (() . ()))))
 
 
-(define son "Enzo de Bem")
-(+ 1 1)
+
 
