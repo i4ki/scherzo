@@ -1,13 +1,8 @@
 package lang
 
 // Plus is a recursive +
-func Plus(exprs ...SExprs) SExprs {
-	if len(exprs) > 1 {
-		return Nil
-	}
-
-	values := exprs[0]
-
+func Plus(exprs λS) λS {
+	values := exprs.(SExprs)
 	var consS = Env["cons"]
 
 	if consS == nil {
@@ -22,19 +17,19 @@ func Plus(exprs ...SExprs) SExprs {
 		return Nil
 	}
 
-	cdr, ok := values(2).(SExprs)
+	cdr, ok := values(False).(SExprs)
 
 	if !ok {
-		return NewAtom(values(1))
+		return NewAtom(values(True))
 	}
 
-	car, ok := values(1).(int)
+	car, ok := values(True).(int)
 
 	if !ok {
 		return Nil
 	}
 
-	cdrcar, ok := cdr(1).(int)
+	cdrcar, ok := cdr(True).(int)
 
 	if !ok {
 		return Nil
@@ -42,11 +37,11 @@ func Plus(exprs ...SExprs) SExprs {
 
 	acc := cdrcar + car
 
-	cdrcdr, ok := cdr(2).(SExprs)
+	cdrcdr, ok := cdr(False).(SExprs)
 
 	if !ok {
-		return cons(NewAtom(acc), Nil)
+		return cons(NewAtom(acc)).(λ)(Nil)
 	}
 
-	return Plus(cons(NewAtom(acc), cdrcdr))
+	return Plus(cons(NewAtom(acc)).(λ)(cdrcdr))
 }

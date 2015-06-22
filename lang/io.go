@@ -2,10 +2,13 @@ package lang
 
 import "fmt"
 
-var Print λ = func(exprs ...SExprs) SExprs {
-	for _, s := range exprs {
-		fmt.Println(s(1))
+var Print λ = func(v λS) λS {
+	switch v.(type) {
+	case λ:
+		fmt.Println(v.(λ)(True))
+	default:
+		fmt.Println(v)
 	}
 
-	return Nil
+	return True
 }
